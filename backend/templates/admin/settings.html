@@ -8,7 +8,7 @@
     {% for key, label in fields %}
     <div class="form-row">
       <label for="{{ key }}">{{ label }}</label>
-      {% if key in ['about_text'] %}
+      {% if key in ['about_text', 'terms'] %}
       <textarea id="{{ key }}" name="{{ key }}">{{ values.get(key, '') }}</textarea>
       {% else %}
       <input type="text" id="{{ key }}" name="{{ key }}" value="{{ values.get(key, '') }}">
