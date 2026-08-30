@@ -3,6 +3,12 @@
   "use strict";
 
   const API_BASE_URL = (window.RUMA_CONFIG && window.RUMA_CONFIG.API_BASE_URL) || "";
+  let bookingPricing = {
+    morning_price: 200000,
+    evening_price: 250000,
+    included_guests: 15,
+    extra_guest_price: 10000,
+  };
 
   /* ---------------------------- Sticky nav + toggle ---------------------------- */
   function initNav() {
@@ -55,17 +61,52 @@
     return n.toLocaleString("ar-IQ");
   }
 
+  function updateBookingPrice() {
+    const form = document.querySelector("#booking-form");
+    const box = document.querySelector("[data-booking-price]");
+    if (!form || !box) return;
+    const shift = form.shift.value;
+    const guests = Math.max(1, Number(form.guests_count.value) || 1);
+    const strong = box.querySelector("strong");
+    const small = box.querySelector("small");
+    if (!shift) {
+      strong.textContent = "اختر الشفت وعدد الأشخاص";
+      return;
+    }
+    const base = Number(bookingPricing[shift + "_price"]) || 0;
+    const included = Number(bookingPricing.included_guests) || 15;
+    const extraPrice = Number(bookingPricing.extra_guest_price) || 10000;
+    const extras = Math.max(0, guests - included);
+    const total = base + extras * extraPrice;
+    strong.textContent = formatIQD(total) + " دينار عراقي";
+    small.textContent = extras
+      ? `يشمل السعر ${included} شخصاً + ${formatIQD(extras * extraPrice)} دينار للأشخاص الإضافيين.`
+      : `السعر الأساسي يشمل لغاية ${included} شخصاً.`;
+  }
+
+  function initBookingPricing() {
+    const form = document.querySelector("#booking-form");
+    if (!form) return;
+    form.shift.addEventListener("change", updateBookingPrice);
+    form.guests_count.addEventListener("input", updateBookingPrice);
+    updateBookingPrice();
+  }
+
   async function loadSettings() {
     const targets = document.querySelectorAll("[data-setting]");
     const priceTargets = document.querySelectorAll("[data-price]");
     const serviceList = document.querySelector("[data-services]");
-    if (!targets.length && !priceTargets.length && !serviceList) return;
+    const termsList = document.querySelector("[data-terms]");
+    const bookingPrice = document.querySelector("[data-booking-price]");
+    if (!targets.length && !priceTargets.length && !serviceList && !termsList && !bookingPrice) return;
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/settings`);
       const data = await res.json();
       if (!data.success) return;
       const s = data.settings;
+      bookingPricing = { ...bookingPricing, ...s };
+      updateBookingPrice();
 
       targets.forEach((el) => {
         const key = el.getAttribute("data-setting");
@@ -87,6 +128,15 @@
           serviceList.appendChild(card);
         });
         initReveal();
+      }
+
+      if (termsList && Array.isArray(s.terms) && s.terms.length) {
+        termsList.innerHTML = "";
+        s.terms.forEach((term) => {
+          const item = document.createElement("li");
+          item.textContent = term;
+          termsList.appendChild(item);
+        });
       }
 
       const mapQuery = s.map_location || s.address;
@@ -194,6 +244,8 @@
         if (resultBox) {
           resultBox.hidden = false;
           resultBox.querySelector("[data-booking-id]").textContent = data.booking.booking_id;
+          const total = resultBox.querySelector("[data-booking-total]");
+          if (total) total.textContent = formatIQD(data.booking.total_price);
         }
       } catch (err) {
         showAlert(
@@ -247,6 +299,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     initNav();
     initReveal();
+    initBookingPricing();
     loadSettings();
     loadGallery();
     initBookingForm();
