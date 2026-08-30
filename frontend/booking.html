@@ -82,6 +82,12 @@
           </div>
         </div>
 
+        <div class="price-estimate" data-booking-price>
+          <span>السعر المتوقع</span>
+          <strong>اختر الشفت وعدد الأشخاص</strong>
+          <small>السعر الأساسي يشمل 15 شخصاً، وكل شخص إضافي 10,000 دينار.</small>
+        </div>
+
         <div class="form-field full">
           <label for="notes">ملاحظات إضافية (اختياري)</label>
           <textarea id="notes" name="notes" maxlength="1000" placeholder="أي طلبات أو ملاحظات خاصة..."></textarea>
@@ -92,8 +98,25 @@
 
       <div id="booking-result" class="booking-id-box" hidden>
         رقم حجزكم هو: <span data-booking-id></span><br>
+        السعر النهائي: <span data-booking-total></span> دينار عراقي<br>
         <small>احتفظوا بهذا الرقم لمتابعة حالة الحجز.</small>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="section terms-section" style="padding-top:0;">
+  <div class="container">
+    <div class="terms-card reveal">
+      <div class="eyebrow">قبل الحجز</div>
+      <h2 class="section-title">شروط المنتجع</h2>
+      <ul class="terms-list" data-terms>
+        <li>يُعد الحجز مؤكداً فقط بعد تواصل إدارة المنتجع.</li>
+        <li>السعر الأساسي يشمل 15 شخصاً وتُضاف 10,000 دينار لكل شخص إضافي.</li>
+        <li>المحافظة على نظافة وممتلكات المنتجع.</li>
+        <li>يُمنع إدخال أي مواد مخالفة للقانون.</li>
+        <li>يتحمل صاحب الحجز مسؤولية الأضرار الناتجة عن مجموعته.</li>
+      </ul>
     </div>
   </div>
 </section>
