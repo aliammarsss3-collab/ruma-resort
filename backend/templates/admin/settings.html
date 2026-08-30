@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block title %}الأسعار والمعلومات{% endblock %}
+{% block content %}
+<h2>الأسعار ومعلومات المنتجع</h2>
+<div class="card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for key, label in fields %}
+    <div class="form-row">
+      <label for="{{ key }}">{{ label }}</label>
+      {% if key in ['about_text'] %}
+      <textarea id="{{ key }}" name="{{ key }}">{{ values.get(key, '') }}</textarea>
+      {% else %}
+      <input type="text" id="{{ key }}" name="{{ key }}" value="{{ values.get(key, '') }}">
+      {% endif %}
+    </div>
+    {% endfor %}
+    <p class="empty">يمكنك نسخ إحداثيات المكان من خرائط Google ولصقها في خانة موقع الخريطة، مثال: 33.3152,44.3661</p>
+    <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+  </form>
+</div>
+{% endblock %}
