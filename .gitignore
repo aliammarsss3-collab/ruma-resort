@@ -1,0 +1,48 @@
+# ---------- Secrets ----------
+.env
+backend/.env
+*.env
+!.env.example
+!backend/.env.example
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.Python
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+backend/venv/
+backend/.venv/
+
+# ---------- Flask / instance ----------
+instance/
+backend/instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploaded gallery images (user content, not source code)
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep
+
+# ---------- Logs ----------
+*.log
+
+# ---------- IDE / OS ----------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---------- Node (if any tooling is added later) ----------
+node_modules/
