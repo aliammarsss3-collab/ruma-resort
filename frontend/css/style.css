@@ -93,6 +93,8 @@ a { color: inherit; text-decoration: none; }
   font-family: "Thmanyah Serif Display", serif; font-size: 1.3rem;
 }
 .brand-name { font-family: "Thmanyah Serif Display", serif; font-size: 1.25rem; }
+.brand-logo { width: 150px; height: 52px; object-fit: contain; border-radius: 10px; }
+.brand-logo-footer { width: 190px; height: 72px; }
 
 .nav-links { display: flex; gap: .3rem; list-style: none; margin: 0; padding: 0; }
 .nav-links a {
@@ -117,7 +119,8 @@ a { color: inherit; text-decoration: none; }
 /* --------------------------------- Hero ----------------------------------- */
 .hero {
   position: relative; min-height: 92vh; display: flex; align-items: center;
-  background: radial-gradient(120% 90% at 15% 0%, #33513f 0%, var(--green-deep) 55%, #182a1f 100%);
+  background: linear-gradient(90deg, rgba(20,35,26,.94) 0%, rgba(27,49,36,.76) 52%, rgba(20,35,26,.42) 100%),
+    url("../images/5235605957948155159_121.jpg") center/cover no-repeat;
   color: var(--white); overflow: hidden;
   padding-top: 6rem;
 }
@@ -155,7 +158,8 @@ a { color: inherit; text-decoration: none; }
 
 .about-visual {
   border-radius: var(--radius-lg); overflow: hidden; position: relative; aspect-ratio: 4/3;
-  background: linear-gradient(160deg, var(--green) 0%, var(--green-deep) 100%);
+  background: linear-gradient(160deg, rgba(35,57,44,.08), rgba(35,57,44,.25)),
+    url("../images/5235605957948155160_119.jpg") center/cover no-repeat;
   box-shadow: var(--shadow);
 }
 .about-visual::after {
@@ -282,6 +286,8 @@ a { color: inherit; text-decoration: none; }
 .terms-list { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; gap: .8rem; }
 .terms-list li { position: relative; padding: .8rem 2.8rem .8rem 1rem; background: var(--beige); border-radius: 12px; color: var(--ink); }
 .terms-list li::before { content: "✓"; position: absolute; right: 1rem; color: var(--gold); font-weight: 900; }
+.terms-list strong { color: var(--green-deep); }
+.terms-closing { text-align: center; color: var(--gold); font-weight: 800; font-size: 1.1rem; margin: 1.5rem 0 0; }
 
 /* ------------------------------- Simple pages -------------------------------- */
 .page-hero {
