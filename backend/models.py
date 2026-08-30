@@ -71,6 +71,7 @@ class Booking(db.Model):
     booking_date = db.Column(db.Date, nullable=False)
     shift = db.Column(db.String(10), nullable=False)  # "morning" | "evening"
     guests_count = db.Column(db.Integer, nullable=False, default=1)
+    total_price = db.Column(db.Integer, nullable=False, default=0)
     notes = db.Column(db.Text, nullable=True)
 
     status = db.Column(db.String(20), nullable=False, default="new", index=True)
@@ -95,6 +96,8 @@ class Booking(db.Model):
             "booking_date": self.booking_date.isoformat(),
             "shift": self.shift,
             "shift_label": self.shift_label,
+            "guests_count": self.guests_count,
+            "total_price": self.total_price,
         }
 
     def __repr__(self):

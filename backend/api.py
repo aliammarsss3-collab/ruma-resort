@@ -21,10 +21,13 @@ PUBLIC_SETTING_KEYS = [
     "evening_price",
     "morning_hours",
     "evening_hours",
+    "included_guests",
+    "extra_guest_price",
     "phone",
     "whatsapp",
     "address",
     "map_location",
+    "terms",
     "services",
 ]
 
@@ -39,6 +42,8 @@ def get_settings():
     values = Setting.get_many(PUBLIC_SETTING_KEYS)
     services_raw = values.get("services", "")
     values["services"] = [s for s in services_raw.split("|") if s.strip()]
+    terms_raw = values.get("terms", "")
+    values["terms"] = [term for term in terms_raw.split("|") if term.strip()]
     return jsonify(success=True, settings=values)
 
 
@@ -105,6 +110,11 @@ def create_booking():
         shift=shift,
         guests_count=guests_count,
         notes=notes,
+        total_price=(
+            int(Setting.get("morning_price" if shift == "morning" else "evening_price", "0"))
+            + max(0, guests_count - int(Setting.get("included_guests", "15")))
+            * int(Setting.get("extra_guest_price", "10000"))
+        ),
         status="new",
     )
     db.session.add(booking)
