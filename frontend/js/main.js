@@ -165,7 +165,6 @@
       if (!data.success) return;
 
       if (!data.images.length) {
-        grid.innerHTML = '<p class="gallery-empty">سيتم إضافة صور المعرض قريباً.</p>';
         return;
       }
 
@@ -176,7 +175,9 @@
         grid.appendChild(fig);
       });
     } catch (err) {
-      grid.innerHTML = '<p class="gallery-empty">سيتم إضافة صور المعرض قريباً.</p>';
+      if (!grid.querySelector("figure")) {
+        grid.innerHTML = '<p class="gallery-empty">سيتم إضافة صور المعرض قريباً.</p>';
+      }
       console.warn("تعذر تحميل معرض الصور:", err);
     }
   }
