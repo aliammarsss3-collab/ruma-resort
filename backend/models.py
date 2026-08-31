@@ -45,6 +45,15 @@ BOOKING_STATUSES = {
 SHIFT_LABELS = {
     "morning": "الشفت الصباحي (10 صباحاً - 6 مساءً)",
     "evening": "الشفت المسائي (8 مساءً - 8 صباحاً)",
+    "event": "المناسبة (10 صباحاً - 8 صباح اليوم التالي)",
+}
+
+BOOKING_TYPE_LABELS = {
+    "stay": "حجز اعتيادي",
+    "mahr": "مهر",
+    "circumcision": "ختان",
+    "birthday": "عيد ميلاد",
+    "wedding": "زفاف / عرس",
 }
 
 
@@ -70,8 +79,12 @@ class Booking(db.Model):
     phone = db.Column(db.String(30), nullable=False, index=True)
     booking_date = db.Column(db.Date, nullable=False)
     shift = db.Column(db.String(10), nullable=False)  # "morning" | "evening"
+    booking_type = db.Column(db.String(20), nullable=False, default="stay")
     guests_count = db.Column(db.Integer, nullable=False, default=1)
     total_price = db.Column(db.Integer, nullable=False, default=0)
+    deposit_amount = db.Column(db.Integer, nullable=False, default=0)
+    payment_method = db.Column(db.String(50), nullable=True)
+    payment_proof = db.Column(db.String(255), nullable=True)
     notes = db.Column(db.Text, nullable=True)
 
     status = db.Column(db.String(20), nullable=False, default="new", index=True)
@@ -87,6 +100,10 @@ class Booking(db.Model):
     def shift_label(self):
         return SHIFT_LABELS.get(self.shift, self.shift)
 
+    @property
+    def booking_type_label(self):
+        return BOOKING_TYPE_LABELS.get(self.booking_type, self.booking_type)
+
     def to_public_dict(self):
         """Minimal, safe representation for the public status-check endpoint."""
         return {
@@ -96,8 +113,11 @@ class Booking(db.Model):
             "booking_date": self.booking_date.isoformat(),
             "shift": self.shift,
             "shift_label": self.shift_label,
+            "booking_type": self.booking_type,
+            "booking_type_label": self.booking_type_label,
             "guests_count": self.guests_count,
             "total_price": self.total_price,
+            "deposit_amount": self.deposit_amount,
         }
 
     def __repr__(self):

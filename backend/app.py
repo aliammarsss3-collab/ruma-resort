@@ -20,6 +20,13 @@ DEFAULT_SETTINGS = {
     "evening_hours": "من 8 مساءً إلى 8 صباحاً",
     "included_guests": "15",
     "extra_guest_price": "10000",
+    "mahr_price": "1000000",
+    "wedding_price": "1000000",
+    "circumcision_price": "750000",
+    "birthday_price": "750000",
+    "event_hours": "من 10 صباحاً إلى 8 صباح اليوم التالي",
+    "payment_methods": "زين كاش|تحويل مصرفي / بطاقة إلكترونية",
+    "payment_instructions": "بعد اختيار طريقة الدفع، حوّل 50% من مبلغ الحجز ثم ارفع صورة واضحة لإثبات التحويل. تواصل معنا للحصول على رقم الحساب المعتمد.",
     "phone": "07762052560",
     "whatsapp": "9647762052560",
     "address": "بعقوبة – تقاطع القدس – رگة حجي سهي",
@@ -47,6 +54,7 @@ def create_app(config_name=None):
     cors.init_app(app, resources={r"/api/*": {"origins": origins}})
 
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    os.makedirs(app.config["PAYMENT_UPLOAD_FOLDER"], exist_ok=True)
     os.makedirs(app.config["INSTANCE_FOLDER"], exist_ok=True)
 
     # --- Blueprints ---
@@ -97,6 +105,20 @@ def _bootstrap(app):
     from models import User, Setting
 
     db.create_all()
+
+    # Lightweight migration for installations created before event bookings/payment proofs.
+    from sqlalchemy import inspect, text
+    columns = {column["name"] for column in inspect(db.engine).get_columns("bookings")}
+    additions = {
+        "booking_type": "VARCHAR(20) NOT NULL DEFAULT 'stay'",
+        "deposit_amount": "INTEGER NOT NULL DEFAULT 0",
+        "payment_method": "VARCHAR(50)",
+        "payment_proof": "VARCHAR(255)",
+    }
+    for column, definition in additions.items():
+        if column not in columns:
+            db.session.execute(text(f"ALTER TABLE bookings ADD COLUMN {column} {definition}"))
+    db.session.commit()
 
     admin_username = app.config["ADMIN_USERNAME"]
     if not User.query.filter_by(username=admin_username).first():

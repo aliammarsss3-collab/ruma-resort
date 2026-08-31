@@ -3,7 +3,7 @@ import os
 import uuid
 
 from flask import (
-    Blueprint, render_template, redirect, url_for, request, flash, current_app
+    Blueprint, render_template, redirect, url_for, request, flash, current_app, send_from_directory
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
@@ -102,6 +102,16 @@ def booking_detail(booking_id):
     return render_template("admin/booking_detail.html", booking=booking, statuses=BOOKING_STATUSES)
 
 
+@admin_bp.route("/bookings/<int:booking_id>/payment-proof")
+@login_required
+def payment_proof(booking_id):
+    booking = db.session.get(Booking, booking_id)
+    if booking is None or not booking.payment_proof:
+        flash("لا يوجد إثبات دفع لهذا الحجز.", "danger")
+        return redirect(url_for("admin.bookings"))
+    return send_from_directory(current_app.config["PAYMENT_UPLOAD_FOLDER"], booking.payment_proof)
+
+
 @admin_bp.route("/bookings/<int:booking_id>/status", methods=["POST"])
 @login_required
 def update_booking_status(booking_id):
@@ -126,6 +136,10 @@ def update_booking_status(booking_id):
 def delete_booking(booking_id):
     booking = db.session.get(Booking, booking_id)
     if booking is not None:
+        if booking.payment_proof:
+            proof_path = os.path.join(current_app.config["PAYMENT_UPLOAD_FOLDER"], booking.payment_proof)
+            if os.path.exists(proof_path):
+                os.remove(proof_path)
         db.session.delete(booking)
         db.session.commit()
         flash("تم حذف الحجز.", "success")
@@ -144,6 +158,13 @@ SETTINGS_FIELDS = [
     ("evening_hours", "أوقات الشفت المسائي"),
     ("included_guests", "عدد الأشخاص المشمولين بالسعر الأساسي"),
     ("extra_guest_price", "سعر كل شخص إضافي (دينار عراقي)"),
+    ("mahr_price", "سعر مناسبة المهر (100-150 شخص)"),
+    ("wedding_price", "سعر الأعراس (100-150 شخص)"),
+    ("circumcision_price", "سعر الختان (50-60 شخص)"),
+    ("birthday_price", "سعر عيد الميلاد (50-60 شخص)"),
+    ("event_hours", "وقت المناسبات"),
+    ("payment_methods", "طرق الدفع الإلكتروني (افصل بينها بعلامة |)"),
+    ("payment_instructions", "تعليمات الدفع ورقم الحساب الظاهر للزبون"),
     ("phone", "رقم الهاتف"),
     ("whatsapp", "رقم واتساب (بصيغة دولية بدون +)"),
     ("address", "العنوان الظاهر للزوار"),

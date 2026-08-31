@@ -40,6 +40,7 @@ class Config:
 
     # --- Uploads ---
     UPLOAD_FOLDER = os.path.join(basedir, "static", "uploads")
+    PAYMENT_UPLOAD_FOLDER = os.path.join(INSTANCE_FOLDER, "payment_proofs")
     ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
     MAX_CONTENT_LENGTH = 6 * 1024 * 1024  # 6 MB per request
 
