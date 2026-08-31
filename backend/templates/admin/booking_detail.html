@@ -9,9 +9,13 @@
     <tr><th>الاسم الكامل</th><td>{{ booking.full_name }}</td></tr>
     <tr><th>رقم الهاتف</th><td>{{ booking.phone }}</td></tr>
     <tr><th>تاريخ الحجز</th><td>{{ booking.booking_date }}</td></tr>
+    <tr><th>نوع الحجز</th><td>{{ booking.booking_type_label }}</td></tr>
     <tr><th>نوع الشفت</th><td>{{ booking.shift_label }}</td></tr>
     <tr><th>عدد الأشخاص</th><td>{{ booking.guests_count }}</td></tr>
     <tr><th>السعر النهائي</th><td>{{ "{:,}".format(booking.total_price) }} دينار عراقي</td></tr>
+    <tr><th>العربون المدفوع (50%)</th><td>{{ "{:,}".format(booking.deposit_amount) }} دينار عراقي</td></tr>
+    <tr><th>طريقة الدفع</th><td>{{ booking.payment_method or '-' }}</td></tr>
+    <tr><th>إثبات الدفع</th><td>{% if booking.payment_proof %}<a class="btn btn-primary btn-sm" target="_blank" href="{{ url_for('admin.payment_proof', booking_id=booking.id) }}">عرض صورة الإثبات</a>{% else %}-{% endif %}</td></tr>
     <tr><th>ملاحظات</th><td>{{ booking.notes or '-' }}</td></tr>
     <tr><th>تاريخ الإرسال</th><td>{{ booking.created_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
   </table>
