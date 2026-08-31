@@ -50,7 +50,18 @@
 
       <form id="booking-form" novalidate>
         <div class="form-grid">
-          <div class="form-field">
+          <div class="form-field full">
+            <label for="booking_type">نوع الحجز</label>
+            <select id="booking_type" name="booking_type" required>
+              <option value="stay">حجز اعتيادي</option>
+              <option value="mahr">مناسبة مهر — 100 إلى 150 شخص</option>
+              <option value="circumcision">مناسبة ختان — 50 إلى 60 شخص</option>
+              <option value="birthday">عيد ميلاد — 50 إلى 60 شخص</option>
+              <option value="wedding">زفاف / عرس — 100 إلى 150 شخص</option>
+            </select>
+            <div class="field-error" data-error-for="booking_type"></div>
+          </div>
+          <div class="form-field" data-shift-field>
             <label for="full_name">الاسم الكامل</label>
             <input type="text" id="full_name" name="full_name" required maxlength="120">
             <div class="field-error" data-error-for="full_name"></div>
@@ -87,17 +98,47 @@
           <small>السعر الأساسي يشمل 15 شخصاً، وكل شخص إضافي 10,000 دينار.</small>
         </div>
 
+        <div class="event-notice" data-event-notice hidden>
+          <strong>وقت جميع المناسبات</strong>
+          <span data-event-hours>من 10 صباحاً إلى 8 صباح اليوم التالي</span>
+        </div>
+
+        <div class="payment-card">
+          <div class="eyebrow">دفع العربون</div>
+          <h3>ادفع 50% إلكترونياً لتثبيت الطلب</h3>
+          <p data-payment-instructions>بعد اختيار طريقة الدفع، حوّل 50% من مبلغ الحجز ثم ارفع صورة واضحة لإثبات التحويل. تواصل معنا للحصول على رقم الحساب المعتمد.</p>
+          <div class="deposit-line"><span>العربون المطلوب</span><strong data-deposit-amount>يُحسب بعد اختيار الحجز</strong></div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="payment_method">طريقة الدفع الإلكتروني</label>
+              <select id="payment_method" name="payment_method" required data-payment-methods>
+                <option value="">اختر طريقة الدفع</option>
+                <option value="زين كاش">زين كاش</option>
+                <option value="تحويل مصرفي / بطاقة إلكترونية">تحويل مصرفي / بطاقة إلكترونية</option>
+              </select>
+              <div class="field-error" data-error-for="payment_method"></div>
+            </div>
+            <div class="form-field">
+              <label for="payment_proof">صورة إثبات دفع العربون</label>
+              <input type="file" id="payment_proof" name="payment_proof" required accept="image/png,image/jpeg,image/webp">
+              <small>الصيغ المسموحة: JPG أو PNG أو WEBP — الحد الأعلى 6MB.</small>
+              <div class="field-error" data-error-for="payment_proof"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-field full">
           <label for="notes">ملاحظات إضافية (اختياري)</label>
           <textarea id="notes" name="notes" maxlength="1000" placeholder="أي طلبات أو ملاحظات خاصة..."></textarea>
         </div>
 
-        <button type="submit" class="btn btn-gold btn-block">إرسال طلب الحجز</button>
+        <button type="submit" class="btn btn-gold btn-block">إرسال الطلب وإثبات الدفع</button>
       </form>
 
       <div id="booking-result" class="booking-id-box" hidden>
         رقم حجزكم هو: <span data-booking-id></span><br>
         السعر النهائي: <span data-booking-total></span> دينار عراقي<br>
+        العربون المدفوع: <span data-booking-deposit></span> دينار عراقي<br>
         <small>احتفظوا بهذا الرقم لمتابعة حالة الحجز.</small>
       </div>
     </div>
