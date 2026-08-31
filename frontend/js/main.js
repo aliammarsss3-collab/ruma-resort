@@ -8,6 +8,11 @@
     evening_price: 250000,
     included_guests: 15,
     extra_guest_price: 10000,
+    mahr_price: 1000000,
+    wedding_price: 1000000,
+    circumcision_price: 750000,
+    birthday_price: 750000,
+    event_hours: "من 10 صباحاً إلى 8 صباح اليوم التالي",
   };
 
   /* ---------------------------- Sticky nav + toggle ---------------------------- */
@@ -66,22 +71,55 @@
     const box = document.querySelector("[data-booking-price]");
     if (!form || !box) return;
     const shift = form.shift.value;
+    const bookingType = form.booking_type ? form.booking_type.value : "stay";
     const guests = Math.max(1, Number(form.guests_count.value) || 1);
     const strong = box.querySelector("strong");
     const small = box.querySelector("small");
-    if (!shift) {
+    if (bookingType === "stay" && !shift) {
       strong.textContent = "اختر الشفت وعدد الأشخاص";
       return;
     }
-    const base = Number(bookingPricing[shift + "_price"]) || 0;
+    const eventType = bookingType !== "stay";
+    const base = Number(bookingPricing[eventType ? bookingType + "_price" : shift + "_price"]) || 0;
     const included = Number(bookingPricing.included_guests) || 15;
     const extraPrice = Number(bookingPricing.extra_guest_price) || 10000;
-    const extras = Math.max(0, guests - included);
+    const extras = eventType ? 0 : Math.max(0, guests - included);
     const total = base + extras * extraPrice;
     strong.textContent = formatIQD(total) + " دينار عراقي";
-    small.textContent = extras
+    small.textContent = eventType
+      ? "سعر ثابت للمناسبة حسب العدد المحدد، من 10 صباحاً إلى 8 صباح اليوم التالي."
+      : extras
       ? `يشمل السعر ${included} شخصاً + ${formatIQD(extras * extraPrice)} دينار للأشخاص الإضافيين.`
       : `السعر الأساسي يشمل لغاية ${included} شخصاً.`;
+    const deposit = document.querySelector("[data-deposit-amount]");
+    if (deposit) deposit.textContent = formatIQD(Math.floor(total / 2)) + " دينار عراقي";
+  }
+
+  function updateBookingType() {
+    const form = document.querySelector("#booking-form");
+    if (!form || !form.booking_type) return;
+    const type = form.booking_type.value;
+    const ranges = {
+      stay: [1, 100],
+      mahr: [100, 150],
+      wedding: [100, 150],
+      circumcision: [50, 60],
+      birthday: [50, 60],
+    };
+    const [minimum, maximum] = ranges[type] || ranges.stay;
+    form.guests_count.min = minimum;
+    form.guests_count.max = maximum;
+    if (Number(form.guests_count.value) < minimum || Number(form.guests_count.value) > maximum) {
+      form.guests_count.value = minimum;
+    }
+    const isEvent = type !== "stay";
+    const shiftField = form.querySelector("[data-shift-field]");
+    const notice = document.querySelector("[data-event-notice]");
+    if (shiftField) shiftField.hidden = isEvent;
+    form.shift.required = !isEvent;
+    if (isEvent) form.shift.value = "";
+    if (notice) notice.hidden = !isEvent;
+    updateBookingPrice();
   }
 
   function initBookingPricing() {
@@ -89,7 +127,8 @@
     if (!form) return;
     form.shift.addEventListener("change", updateBookingPrice);
     form.guests_count.addEventListener("input", updateBookingPrice);
-    updateBookingPrice();
+    if (form.booking_type) form.booking_type.addEventListener("change", updateBookingType);
+    updateBookingType();
   }
 
   async function loadSettings() {
@@ -107,6 +146,21 @@
       const s = data.settings;
       bookingPricing = { ...bookingPricing, ...s };
       updateBookingPrice();
+
+      const eventHours = document.querySelector("[data-event-hours]");
+      if (eventHours && s.event_hours) eventHours.textContent = s.event_hours;
+      const instructions = document.querySelector("[data-payment-instructions]");
+      if (instructions && s.payment_instructions) instructions.textContent = s.payment_instructions;
+      const methods = document.querySelector("[data-payment-methods]");
+      if (methods && Array.isArray(s.payment_methods) && s.payment_methods.length) {
+        methods.innerHTML = '<option value="">اختر طريقة الدفع</option>';
+        s.payment_methods.forEach((method) => {
+          const option = document.createElement("option");
+          option.value = method;
+          option.textContent = method;
+          methods.appendChild(option);
+        });
+      }
 
       targets.forEach((el) => {
         const key = el.getAttribute("data-setting");
@@ -192,7 +246,7 @@
     const form = document.querySelector("#booking-form");
     if (!form) return;
 
-    const alertBox = form.querySelector(".alert");
+    const alertBox = form.parentElement.querySelector(".alert");
     const submitBtn = form.querySelector('button[type="submit"]');
     const resultBox = document.querySelector("#booking-result");
 
@@ -208,14 +262,7 @@
       alertBox.classList.remove("show");
       form.querySelectorAll(".field-error").forEach((el) => el.classList.remove("show"));
 
-      const payload = {
-        full_name: form.full_name.value.trim(),
-        phone: form.phone.value.trim(),
-        booking_date: form.booking_date.value,
-        shift: form.shift.value,
-        guests_count: form.guests_count.value,
-        notes: form.notes.value.trim(),
-      };
+      const payload = new FormData(form);
 
       submitBtn.disabled = true;
       submitBtn.textContent = "جارٍ الإرسال...";
@@ -223,8 +270,7 @@
       try {
         const res = await fetch(`${API_BASE_URL}/api/bookings`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: payload,
         });
         const data = await res.json();
 
@@ -241,12 +287,15 @@
         }
 
         form.reset();
+        updateBookingType();
         showAlert(alertBox, "success", "تم استلام طلب الحجز بنجاح! سنتواصل معكم لتأكيد الحجز.");
         if (resultBox) {
           resultBox.hidden = false;
           resultBox.querySelector("[data-booking-id]").textContent = data.booking.booking_id;
           const total = resultBox.querySelector("[data-booking-total]");
           if (total) total.textContent = formatIQD(data.booking.total_price);
+          const deposit = resultBox.querySelector("[data-booking-deposit]");
+          if (deposit) deposit.textContent = formatIQD(data.booking.deposit_amount);
         }
       } catch (err) {
         showAlert(
@@ -257,7 +306,7 @@
         console.error(err);
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "إرسال طلب الحجز";
+        submitBtn.textContent = "إرسال الطلب وإثبات الدفع";
       }
     });
   }
