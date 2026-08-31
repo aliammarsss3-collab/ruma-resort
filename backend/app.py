@@ -25,8 +25,8 @@ DEFAULT_SETTINGS = {
     "circumcision_price": "750000",
     "birthday_price": "750000",
     "event_hours": "من 10 صباحاً إلى 8 صباح اليوم التالي",
-    "payment_methods": "زين كاش|تحويل مصرفي / بطاقة إلكترونية",
-    "payment_instructions": "بعد اختيار طريقة الدفع، حوّل 50% من مبلغ الحجز ثم ارفع صورة واضحة لإثبات التحويل. تواصل معنا للحصول على رقم الحساب المعتمد.",
+    "payment_methods": "ماستر كارد",
+    "payment_instructions": "حوّل 50% من مبلغ الحجز إلى الماستر رقم 7328303040 باسم سيف علي محمود، ثم ارفع صورة واضحة لإثبات التحويل.",
     "phone": "07762052560",
     "whatsapp": "9647762052560",
     "address": "بعقوبة – تقاطع القدس – رگة حجي سهي",
@@ -129,6 +129,14 @@ def _bootstrap(app):
     for key, value in DEFAULT_SETTINGS.items():
         if not Setting.query.filter_by(key=key).first():
             db.session.add(Setting(key=key, value=value))
+
+    # Replace the original placeholder payment text on existing installations.
+    legacy_methods = Setting.query.filter_by(key="payment_methods").first()
+    if legacy_methods and legacy_methods.value == "زين كاش|تحويل مصرفي / بطاقة إلكترونية":
+        legacy_methods.value = DEFAULT_SETTINGS["payment_methods"]
+    legacy_instructions = Setting.query.filter_by(key="payment_instructions").first()
+    if legacy_instructions and "تواصل معنا للحصول على رقم الحساب المعتمد" in legacy_instructions.value:
+        legacy_instructions.value = DEFAULT_SETTINGS["payment_instructions"]
 
     db.session.commit()
 
